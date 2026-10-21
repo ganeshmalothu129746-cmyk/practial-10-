@@ -1,0 +1,105 @@
+```cpp
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+struct Edge {
+    int u, v, weight;
+};
+
+bool compare(Edge a, Edge b) {
+    return a.weight < b.weight;
+}
+
+class DSU {
+    vector<int> parent, rank;
+
+public:
+    DSU(int n) {
+        parent.resize(n);
+        rank.resize(n, 0);
+
+        for (int i = 0; i < n; i++)
+            parent[i] = i;
+    }
+
+    int find(int x) {
+        if (parent[x] != x)
+            parent[x] = find(parent[x]);
+        return parent[x];
+    }
+
+    bool unite(int a, int b) {
+        a = find(a);
+        b = find(b);
+
+        if (a == b)
+            return false;
+
+        if (rank[a] < rank[b])
+            swap(a, b);
+
+        parent[b] = a;
+
+        if (rank[a] == rank[b])
+            rank[a]++;
+
+        return true;
+    }
+};
+
+int main() {
+    int V, E;
+
+    cout << "Enter number of vertices and edges: ";
+    cin >> V >> E;
+
+    vector<Edge> edges(E);
+
+    cout << "Enter edges (u v weight):\n";
+
+    for (int i = 0; i < E; i++) {
+        cin >> edges[i].u
+            >> edges[i].v
+            >> edges[i].weight;
+    }
+
+    sort(edges.begin(), edges.end(), compare);
+
+    DSU dsu(V);
+    int totalWeight = 0;
+    int count = 0;
+
+    cout << "\nEdges in Minimum Spanning Tree:\n";
+
+    for (Edge e : edges) {
+        if (dsu.unite(e.u, e.v)) {
+            cout << e.u << " - " << e.v
+                 << " : " << e.weight << '\n';
+
+            totalWeight += e.weight;
+            count++;
+        }
+
+        if (count == V - 1)
+            break;
+    }
+
+    if (count != V - 1) {
+        cout << "Graph is disconnected. MST does not exist.\n";
+    } else {
+        cout << "Total MST Weight: "
+             << totalWeight << '\n';
+    }
+
+    return 0;
+}
+```
+Out Put 
+Edges in Minimum Spanning Tree:
+0 - 1 : 2
+1 - 2 : 3
+1 - 4 : 5
+0 - 3 : 6
+Total MST Weight: 16
